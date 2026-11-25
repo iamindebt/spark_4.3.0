@@ -13,7 +13,7 @@ ipython
 nbformat
 
 # Spark
-pyspark
+pyspark[connect]
 pyarrow
 
 # Visualization
