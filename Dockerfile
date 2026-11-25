@@ -1,36 +1,32 @@
-FROM python:3.12-slim
+FROM python:3.12-slim-trixie
 
-LABEL org.opencontainers.image.title="ollama-expanse-2026-b" \
-      org.opencontainers.image.description="Latest Ollama version compatible with SDSC Expanse V100s" \
-      org.opencontainers.image.source="https://github.com/iamindebt/ollama-expanse-2026-b"
+LABEL org.opencontainers.image.title="spark-expanse-2026" \
+      org.opencontainers.image.description="PySpark and scientific computing environment for SDSC Expanse" \
+      org.opencontainers.image.source="https://github.com/USERNAME/spark-expanse-2026"
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PIP_NO_CACHE_DIR=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    bash curl ca-certificates git jq procps pciutils zstd gnupg \
+    bash curl ca-certificates git jq procps \
+    openjdk-21-jre-headless \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
-    apt-get install -y nodejs && \
-    npm install -g opencode-ai@latest @modelcontextprotocol/server-brave-search@0.6.2 && \
-    npm cache clean --force
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+ENV PYSPARK_PYTHON=/usr/local/bin/python
 
-RUN curl -fsSL https://ollama.com/download/ollama-linux-amd64.tar.zst \
-    | tar --zstd -x -C /usr/local
-
-COPY requirements.txt constraints.txt /tmp/
+COPY requirements.txt /tmp/requirements.txt
 
 RUN python -m pip install --upgrade pip && \
-    python -m pip install torch==2.14.1+cu126 torchvision torchaudio \
-        --index-url https://download.pytorch.org/whl/cu126 && \
-    python -m pip install -r /tmp/requirements.txt \
-        -c /tmp/constraints.txt && \
+    python -m pip install -r /tmp/requirements.txt && \
     python -m pip check && \
-    rm /tmp/requirements.txt /tmp/constraints.txt
+    rm /tmp/requirements.txt
 
-RUN node --version && npm --version && opencode --version
+RUN java -version
 
-RUN python -c "import torch, torchvision, torchaudio; print('PyTorch:', torch.__version__); print('CUDA:', torch.version.cuda); print('Torchvision:', torchvision.__version__); print('Torchaudio:', torchaudio.__version__)"
+RUN python -c "import pyspark, plotly, pandas, numpy, pyarrow; print('PySpark:', pyspark.__version__); print('Plotly:', plotly.__version__)"
+
+RUN python -c "from pyspark.sql import SparkSession; spark = SparkSession.builder.master('local[2]').appName('ContainerTest').getOrCreate(); print('Spark JVM:', spark.version); assert spark.range(5).count() == 5; spark.stop()"
 
 CMD ["/bin/bash"]

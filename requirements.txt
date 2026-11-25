@@ -1,34 +1,20 @@
 # Core scientific / EDA stack
-pandas
 numpy
+pandas
 matplotlib
 seaborn
+scipy
 
 # Jupyter environment
 jupyterlab
+ipykernel
 ipywidgets
+ipython
+nbformat
 
-# Search / tools
-duckduckgo-search
-mcp
+# Spark
+pyspark
+pyarrow
 
-# LangChain ecosystem
-langchain
-langchain-core
-langchain-classic
-langchain-text-splitters
-langchain-huggingface
-langchain-ollama
-langchain-openai
-langchain-chroma
-langchain-community
-langsmith
-
-# Vector store
-chromadb
-
-# Models and embeddings
-sentence-transformers
-transformers
-huggingface-hub
-ollama
+# Visualization
+plotly
