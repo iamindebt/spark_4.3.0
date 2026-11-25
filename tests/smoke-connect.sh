@@ -39,7 +39,8 @@ server_pid=$!
 ready=false
 for attempt in {1..90}; do
     kill -0 "$server_pid" || exit 1
-    if ss -H -ltn 'sport = :15002' | grep -q '127.0.0.1:15002'; then
+    if grep -q 'Spark Connect server started at: 127.0.0.1:15002' "$log" &&
+       python -c "import socket; socket.create_connection(('127.0.0.1', 15002), timeout=1).close()" 2>/dev/null; then
         ready=true
         break
     fi
